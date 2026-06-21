@@ -94,12 +94,15 @@
 <div class="container">
 
   <!-- หน้าแรก -->
-  <div id="start-screen" class="screen active">
-    <h1>🏫 แบบฝึกพูดภาษาอังกฤษ ป.2</h1>
-    <p>ฟังคุณครูออกเสียง แล้วกดปุ่มไมโครโฟนเพื่อพูดตามนะจ๊ะ (สุ่มมา 5 ข้อ)</p>
-    <input type="text" id="student-name" placeholder="พิมพ์ชื่อตรงนี้เลยจ้า..." maxlength="20"><br>
-    <button class="btn-listen" onclick="startApp()">เริ่มเล่นกันเลย! 🚀</button>
+<div id="start-screen" class="screen active">
+  <h1>🏫 แบบฝึกพูดภาษาอังกฤษ ป.2</h1>
+  <p>ฟังคุณครูออกเสียง แล้วกดปุ่มไมโครโฟนเพื่อพูดตามนะจ๊ะ (สุ่มมา 5 ข้อ)</p>
+  <input type="text" id="student-name" placeholder="พิมพ์ชื่อตรงนี้เลยจ้า..." maxlength="20"><br>
+  <button id="start-btn" class="btn-listen" onclick="startApp()">เริ่มเล่นกันเลย! 🚀</button>
+  <div id="loading-status" style="margin-top: 15px; font-size: 18px; color: #4a6fa5; display: none;">
+    ⏳ กำลังโหลดข้อสอบ รอแป๊บนึงนะจ๊ะ...
   </div>
+</div>
 
   <!-- หน้าทำข้อสอบ -->
   <div id="quiz-screen" class="screen">
@@ -165,24 +168,41 @@
     });
   }
 
-  async function startApp() {
-    studentName = document.getElementById('student-name').value.trim();
-    if (!studentName) {
-      alert('กรุณาใส่ชื่อก่อนนะครับ 😊');
+async function startApp() {
+  studentName = document.getElementById('student-name').value.trim();
+  if (!studentName) {
+    alert('กรุณาใส่ชื่อก่อนนะครับ 😊');
+    return;
+  }
+
+  // แสดง loading
+  document.getElementById('start-btn').disabled = true;
+  document.getElementById('start-btn').innerText = '⏳ กำลังโหลด...';
+  document.getElementById('loading-status').style.display = 'block';
+
+  try {
+    const data = await callGAS({ action: 'getQuiz' });
+    if (data.error) {
+      alert(data.error);
+      // คืนค่าปุ่มถ้า error
+      document.getElementById('start-btn').disabled = false;
+      document.getElementById('start-btn').innerText = 'เริ่มเล่นกันเลย! 🚀';
+      document.getElementById('loading-status').style.display = 'none';
       return;
     }
-    try {
-      const data = await callGAS({ action: 'getQuiz' });
-      if (data.error) { alert(data.error); return; }
-      quizData = data;
-      currentIndex = 0;
-      totalCorrectCount = 0;
-      showQuestion();
-      switchScreen('quiz-screen');
-    } catch (err) {
-      alert('เชื่อมต่อ server ไม่ได้: ' + err);
-    }
+    quizData = data;
+    currentIndex = 0;
+    totalCorrectCount = 0;
+    showQuestion();
+    switchScreen('quiz-screen');
+  } catch (err) {
+    alert('เชื่อมต่อ server ไม่ได้: ' + err);
+    // คืนค่าปุ่มถ้า error
+    document.getElementById('start-btn').disabled = false;
+    document.getElementById('start-btn').innerText = 'เริ่มเล่นกันเลย! 🚀';
+    document.getElementById('loading-status').style.display = 'none';
   }
+}
 
   function showQuestion() {
     document.getElementById('ai-result').style.display = 'none';
