@@ -7,39 +7,107 @@
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
   <script src="https://code.responsivevoice.org/responsivevoice.js?key=1Q22KhOa"></script>
   <style>
-    body { font-family: 'Kanit', sans-serif; background-color: #f7f9fc; text-align: center; color: #333; margin: 0; padding: 20px; }
-    .container { max-width: 550px; margin: 0 auto; background: white; padding: 30px; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+    body {
+      font-family: 'Kanit', sans-serif;
+      background-color: #f7f9fc;
+      text-align: center;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 550px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
     h1 { color: #4a6fa5; font-size: 26px; }
-    input[type="text"] { width: 80%; padding: 12px; font-size: 18px; border: 2px solid #ddd; border-radius: 10px; margin-bottom: 20px; outline: none; font-family: 'Kanit', sans-serif; text-align: center; }
-    .sentence-box { font-size: 32px; font-weight: bold; color: #1e3d59; margin: 25px 0; background: #f5f7fa; padding: 20px; border-radius: 16px; border: 2px dashed #4a6fa5; }
-    button { border: none; padding: 12px 25px; font-size: 18px; border-radius: 15px; cursor: pointer; transition: 0.2s; margin: 10px; font-family: 'Kanit', sans-serif; }
+    input[type="text"] {
+      width: 80%;
+      padding: 12px;
+      font-size: 18px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      outline: none;
+      font-family: 'Kanit', sans-serif;
+      text-align: center;
+    }
+    .sentence-box {
+      font-size: 32px;
+      font-weight: bold;
+      color: #1e3d59;
+      margin: 25px 0;
+      background: #f5f7fa;
+      padding: 20px;
+      border-radius: 16px;
+      border: 2px dashed #4a6fa5;
+    }
+    button {
+      border: none;
+      padding: 12px 25px;
+      font-size: 18px;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: 0.2s;
+      margin: 10px;
+      font-family: 'Kanit', sans-serif;
+    }
     .btn-listen { background-color: #4a6fa5; color: white; }
     .btn-mic { background-color: #ff6b6b; color: white; font-weight: bold; }
     .btn-mic.recording { background-color: #ff0000; animation: pulse 1.5s infinite; }
     .btn-next { background-color: #1dd1a1; color: white; }
-    .result-box { background-color: #e8f4f8; padding: 15px; border-radius: 16px; margin-top: 20px; display: none; text-align: left; }
-    .score-text { font-size: 24px; font-weight: bold; color: #ff6b6b; text-align: center; margin-bottom: 10px; }
+    .result-box {
+      background-color: #e8f4f8;
+      padding: 15px;
+      border-radius: 16px;
+      margin-top: 20px;
+      display: none;
+      text-align: left;
+    }
+    .score-text {
+      font-size: 24px;
+      font-weight: bold;
+      color: #ff6b6b;
+      text-align: center;
+      margin-bottom: 10px;
+    }
     .screen { display: none; }
     .screen.active { display: block; }
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    #mic-status {
+      font-size: 18px;
+      font-weight: bold;
+      color: #ff0000;
+      margin-top: 10px;
+      min-height: 28px;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
   </style>
 </head>
 <body>
 <div class="container">
 
+  <!-- หน้าแรก -->
   <div id="start-screen" class="screen active">
     <h1>🏫 แบบฝึกพูดภาษาอังกฤษ ป.2</h1>
-    <p>ฟังคุณครูออกเสียง แล้วกดปุ่มไมโครโฟนเพื่อพูดตามนะจ๊ะ</p>
+    <p>ฟังคุณครูออกเสียง แล้วกดปุ่มไมโครโฟนเพื่อพูดตามนะจ๊ะ (สุ่มมา 5 ข้อ)</p>
     <input type="text" id="student-name" placeholder="พิมพ์ชื่อตรงนี้เลยจ้า..." maxlength="20"><br>
     <button class="btn-listen" onclick="startApp()">เริ่มเล่นกันเลย! 🚀</button>
   </div>
 
+  <!-- หน้าทำข้อสอบ -->
   <div id="quiz-screen" class="screen">
     <h3 style="color: #888;">ข้อที่ <span id="current-index">1</span> / 5</h3>
     <div class="sentence-box" id="target-sentence">Loading...</div>
     <button class="btn-listen" onclick="playSampleAudio()">🔊 กดฟังเสียงตัวอย่าง</button>
     <button id="mic-btn" class="btn-mic" onclick="toggleRecording()">🎙️ กดแล้วพูดเลย</button>
-    <div id="mic-status" style="font-size: 18px; font-weight: bold; color: #ff0000; margin-top: 10px;"></div>
+    <div id="mic-status"></div>
     <div id="ai-result" class="result-box">
       <div class="score-text">คะแนน: <span id="ai-score">0</span>/100</div>
       <p><strong>💡 ที่หนูพูด:</strong> <span id="spoken-text">...</span></p>
@@ -49,9 +117,13 @@
     </div>
   </div>
 
+  <!-- หน้าสรุปคะแนน -->
   <div id="result-screen" class="screen">
     <h1>🎉 เย้! ครบ 5 ข้อแล้ว 🎉</h1>
-    <div style="font-size: 60px; font-weight: bold; color: #1dd1a1; margin: 20px 0;"><span id="total-score">0</span> / 5</div>
+    <h2>คะแนนรวมของคุณหนูๆ</h2>
+    <div style="font-size: 60px; font-weight: bold; color: #1dd1a1; margin: 20px 0;">
+      <span id="total-score">0</span> / 5
+    </div>
     <p>บันทึกคะแนนเรียบร้อยแล้วจ้า!</p>
     <button class="btn-listen" onclick="resetApp()">🔀 สุ่มข้อสอบชุดใหม่</button>
   </div>
@@ -60,7 +132,7 @@
 
 <script>
   // ⬇️ เปลี่ยนเป็น URL ของ GAS ที่ deploy ไว้
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzeExD0ELq0J0wScRe_F5WNQB3H9e9fvN-3le3NSpfMuxV_YhYNpPsQkNGcOyLoTaNu/exec';
+  const GAS_URL = 'https://script.google.com/macros/s/ใส่_ID_ของคุณ/exec';
 
   let quizData = [];
   let currentIndex = 0;
@@ -75,7 +147,10 @@
       return;
     }
     try {
-      const res = await fetch(GAS_URL + '?action=getQuiz');
+      const res = await fetch(GAS_URL + '?action=getQuiz', {
+        method: 'GET',
+        redirect: 'follow'
+      });
       const data = await res.json();
       if (data.error) { alert(data.error); return; }
       quizData = data;
@@ -94,7 +169,7 @@
     document.getElementById('mic-btn').disabled = false;
     document.getElementById('mic-btn').innerText = "🎙️ กดแล้วพูดเลย";
     document.getElementById('mic-status').innerText = "";
-    let q = quizData[currentIndex];
+    const q = quizData[currentIndex];
     document.getElementById('current-index').innerText = currentIndex + 1;
     document.getElementById('target-sentence').innerText = q.sentence;
     setTimeout(() => playSampleAudio(), 500);
@@ -118,6 +193,7 @@
     const recognition = new SpeechRecognition();
     recognition.lang = 'en-US';
     recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
 
     const micBtn = document.getElementById('mic-btn');
     const micStatus = document.getElementById('mic-status');
@@ -129,39 +205,42 @@
       micStatus.innerText = "🔴 พูดได้เลยจ้า 🎙️";
     };
 
-// ตรง onresult ของ recognition เปลี่ยนเป็น
-recognition.onresult = async (event) => {
-  const spokenText = event.results[0][0].transcript;
-  document.getElementById('spoken-text').innerText = spokenText;
-  micStatus.innerText = "⏳ ส่งให้ AI ตรวจ...";
-  micBtn.innerText = "⏳ รอแป๊บนึง...";
-  micBtn.disabled = true;
+    recognition.onresult = async (event) => {
+      const spokenText = event.results[0][0].transcript;
+      document.getElementById('spoken-text').innerText = spokenText;
+      micStatus.innerText = "⏳ ส่งให้ AI ตรวจ...";
+      micBtn.innerText = "⏳ รอแป๊บนึง...";
+      micBtn.disabled = true;
 
-  try {
-    const params = new URLSearchParams({
-      action: 'verifySpeech',
-      spokenText: spokenText,
-      correctSentence: quizData[currentIndex].sentence
-    });
-    const res = await fetch(GAS_URL + '?' + params);
-    const aiResult = await res.json();
+      try {
+        const params = new URLSearchParams({
+          action: 'verifySpeech',
+          spokenText: spokenText,
+          correctSentence: quizData[currentIndex].sentence
+        });
+        const res = await fetch(GAS_URL + '?' + params.toString(), {
+          method: 'GET',
+          redirect: 'follow'
+        });
+        const aiResult = await res.json();
 
-    document.getElementById('ai-score').innerText = aiResult.score;
-    document.getElementById('ai-feedback').innerText = aiResult.feedback;
-    document.getElementById('ai-encourage').innerText = aiResult.encouragement;
-    document.getElementById('ai-result').style.display = 'block';
-    document.getElementById('next-btn').style.display = 'inline-block';
+        document.getElementById('ai-score').innerText = aiResult.score;
+        document.getElementById('ai-feedback').innerText = aiResult.feedback;
+        document.getElementById('ai-encourage').innerText = aiResult.encouragement;
+        document.getElementById('ai-result').style.display = 'block';
+        document.getElementById('next-btn').style.display = 'inline-block';
 
-    if (aiResult.isCorrect) totalCorrectCount++;
-  } catch (err) {
-    micStatus.innerText = "❌ เชื่อมต่อไม่ได้: " + err;
-  }
+        if (aiResult.isCorrect) totalCorrectCount++;
 
-  micBtn.innerText = "🎙️ กดแล้วพูดเลย";
-  micBtn.disabled = false;
-  isRecording = false;
-  micStatus.innerText = "";
-};
+      } catch (err) {
+        micStatus.innerText = "❌ เชื่อมต่อไม่ได้: " + err;
+      }
+
+      micBtn.innerText = "🎙️ กดแล้วพูดเลย";
+      micBtn.disabled = false;
+      isRecording = false;
+      micStatus.innerText = "";
+    };
 
     recognition.onerror = (event) => {
       isRecording = false;
@@ -169,6 +248,8 @@ recognition.onresult = async (event) => {
       micBtn.innerText = "🎙️ กดแล้วพูดเลย";
       if (event.error === 'no-speech') {
         micStatus.innerText = "❌ ไม่ได้ยินเสียง ลองใหม่นะจ๊ะ";
+      } else if (event.error === 'not-allowed') {
+        micStatus.innerText = "❌ ไม่ได้รับอนุญาตไมโครโฟน กรุณากด Allow ครับ";
       } else {
         micStatus.innerText = "❌ error: " + event.error;
       }
@@ -182,26 +263,28 @@ recognition.onresult = async (event) => {
     recognition.start();
   }
 
-// ตรง nextQuestion เปลี่ยน saveScore เป็น GET
-async function nextQuestion() {
-  currentIndex++;
-  if (currentIndex < quizData.length) {
-    showQuestion();
-  } else {
-    document.getElementById('total-score').innerText = totalCorrectCount;
-    try {
-      const params = new URLSearchParams({
-        action: 'saveScore',
-        name: studentName,
-        totalCorrect: totalCorrectCount
-      });
-      await fetch(GAS_URL + '?' + params);
-    } catch (err) {
-      console.error(err);
+  async function nextQuestion() {
+    currentIndex++;
+    if (currentIndex < quizData.length) {
+      showQuestion();
+    } else {
+      document.getElementById('total-score').innerText = totalCorrectCount;
+      try {
+        const params = new URLSearchParams({
+          action: 'saveScore',
+          name: studentName,
+          totalCorrect: totalCorrectCount
+        });
+        await fetch(GAS_URL + '?' + params.toString(), {
+          method: 'GET',
+          redirect: 'follow'
+        });
+      } catch (err) {
+        console.error(err);
+      }
+      switchScreen('result-screen');
     }
-    switchScreen('result-screen');
   }
-}
 
   function resetApp() {
     document.getElementById('student-name').value = "";
