@@ -60,7 +60,7 @@
 
 <script>
   // ⬇️ เปลี่ยนเป็น URL ของ GAS ที่ deploy ไว้
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycby2INgCClflI34te6yZLyQeO4UVXpaUtRnYEI8vV8RlRK6IkIB9TcCkUBaSsDpWsMRg/exec';
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzeExD0ELq0J0wScRe_F5WNQB3H9e9fvN-3le3NSpfMuxV_YhYNpPsQkNGcOyLoTaNu/exec';
 
   let quizData = [];
   let currentIndex = 0;
@@ -129,40 +129,39 @@
       micStatus.innerText = "🔴 พูดได้เลยจ้า 🎙️";
     };
 
-    recognition.onresult = async (event) => {
-      const spokenText = event.results[0][0].transcript;
-      document.getElementById('spoken-text').innerText = spokenText;
-      micStatus.innerText = "⏳ ส่งให้ AI ตรวจ...";
-      micBtn.innerText = "⏳ รอแป๊บนึง...";
-      micBtn.disabled = true;
+// ตรง onresult ของ recognition เปลี่ยนเป็น
+recognition.onresult = async (event) => {
+  const spokenText = event.results[0][0].transcript;
+  document.getElementById('spoken-text').innerText = spokenText;
+  micStatus.innerText = "⏳ ส่งให้ AI ตรวจ...";
+  micBtn.innerText = "⏳ รอแป๊บนึง...";
+  micBtn.disabled = true;
 
-      try {
-        const res = await fetch(GAS_URL, {
-          method: 'POST',
-          body: JSON.stringify({
-            action: 'verifySpeech',
-            spokenText: spokenText,
-            correctSentence: quizData[currentIndex].sentence
-          })
-        });
-        const aiResult = await res.json();
+  try {
+    const params = new URLSearchParams({
+      action: 'verifySpeech',
+      spokenText: spokenText,
+      correctSentence: quizData[currentIndex].sentence
+    });
+    const res = await fetch(GAS_URL + '?' + params);
+    const aiResult = await res.json();
 
-        document.getElementById('ai-score').innerText = aiResult.score;
-        document.getElementById('ai-feedback').innerText = aiResult.feedback;
-        document.getElementById('ai-encourage').innerText = aiResult.encouragement;
-        document.getElementById('ai-result').style.display = 'block';
-        document.getElementById('next-btn').style.display = 'inline-block';
+    document.getElementById('ai-score').innerText = aiResult.score;
+    document.getElementById('ai-feedback').innerText = aiResult.feedback;
+    document.getElementById('ai-encourage').innerText = aiResult.encouragement;
+    document.getElementById('ai-result').style.display = 'block';
+    document.getElementById('next-btn').style.display = 'inline-block';
 
-        if (aiResult.isCorrect) totalCorrectCount++;
-      } catch (err) {
-        micStatus.innerText = "❌ เชื่อมต่อ server ไม่ได้: " + err;
-      }
+    if (aiResult.isCorrect) totalCorrectCount++;
+  } catch (err) {
+    micStatus.innerText = "❌ เชื่อมต่อไม่ได้: " + err;
+  }
 
-      micBtn.innerText = "🎙️ กดแล้วพูดเลย";
-      micBtn.disabled = false;
-      isRecording = false;
-      micStatus.innerText = "";
-    };
+  micBtn.innerText = "🎙️ กดแล้วพูดเลย";
+  micBtn.disabled = false;
+  isRecording = false;
+  micStatus.innerText = "";
+};
 
     recognition.onerror = (event) => {
       isRecording = false;
@@ -183,25 +182,26 @@
     recognition.start();
   }
 
-  async function nextQuestion() {
-    currentIndex++;
-    if (currentIndex < quizData.length) {
-      showQuestion();
-    } else {
-      document.getElementById('total-score').innerText = totalCorrectCount;
-      try {
-        await fetch(GAS_URL, {
-          method: 'POST',
-          body: JSON.stringify({
-            action: 'saveScore',
-            name: studentName,
-            totalCorrect: totalCorrectCount
-          })
-        });
-      } catch (err) { console.error(err); }
-      switchScreen('result-screen');
+// ตรง nextQuestion เปลี่ยน saveScore เป็น GET
+async function nextQuestion() {
+  currentIndex++;
+  if (currentIndex < quizData.length) {
+    showQuestion();
+  } else {
+    document.getElementById('total-score').innerText = totalCorrectCount;
+    try {
+      const params = new URLSearchParams({
+        action: 'saveScore',
+        name: studentName,
+        totalCorrect: totalCorrectCount
+      });
+      await fetch(GAS_URL + '?' + params);
+    } catch (err) {
+      console.error(err);
     }
+    switchScreen('result-screen');
   }
+}
 
   function resetApp() {
     document.getElementById('student-name').value = "";
