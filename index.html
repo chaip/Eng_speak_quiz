@@ -132,13 +132,38 @@
 
 <script>
   // ⬇️ เปลี่ยนเป็น URL ของ GAS ที่ deploy ไว้
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbwSitp8yJ2CMez947tmB5gAq6Ei6vfZwPP4Qkta5RRo8wDVl8-97Y2LSQ0rakZri8MG/exec';
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzm80IE3vF9BpmRfUV5K8fPkrLxWI1l9Fn0mFymj1OPBZWD-lfg2NAq7y1IbncWuxYR/exec';
 
   let quizData = [];
   let currentIndex = 0;
   let totalCorrectCount = 0;
   let isRecording = false;
   let studentName = "";
+
+  // เรียก GAS แบบ JSONP — ไม่ติด CORS
+  function callGAS(params) {
+    return new Promise((resolve, reject) => {
+      const callbackName = 'cb_' + Date.now();
+      params.callback = callbackName;
+
+      const script = document.createElement('script');
+      script.src = GAS_URL + '?' + new URLSearchParams(params).toString();
+
+      window[callbackName] = function(data) {
+        delete window[callbackName];
+        document.body.removeChild(script);
+        resolve(data);
+      };
+
+      script.onerror = () => {
+        delete window[callbackName];
+        document.body.removeChild(script);
+        reject(new Error('เชื่อมต่อไม่ได้'));
+      };
+
+      document.body.appendChild(script);
+    });
+  }
 
   async function startApp() {
     studentName = document.getElementById('student-name').value.trim();
@@ -147,11 +172,7 @@
       return;
     }
     try {
-      const res = await fetch(GAS_URL + '?action=getQuiz', {
-        method: 'GET',
-        redirect: 'follow'
-      });
-      const data = await res.json();
+      const data = await callGAS({ action: 'getQuiz' });
       if (data.error) { alert(data.error); return; }
       quizData = data;
       currentIndex = 0;
@@ -159,7 +180,7 @@
       showQuestion();
       switchScreen('quiz-screen');
     } catch (err) {
-      alert('เชื่อมต่อ server ไม่ได้ครับ: ' + err);
+      alert('เชื่อมต่อ server ไม่ได้: ' + err);
     }
   }
 
@@ -177,7 +198,11 @@
 
   function playSampleAudio() {
     if (typeof responsiveVoice !== 'undefined') {
-      responsiveVoice.speak(quizData[currentIndex].sentence, "US English Female", { rate: 0.8 });
+      responsiveVoice.speak(
+        quizData[currentIndex].sentence,
+        "US English Female",
+        { rate: 0.8 }
+      );
     }
   }
 
@@ -213,16 +238,11 @@
       micBtn.disabled = true;
 
       try {
-        const params = new URLSearchParams({
+        const aiResult = await callGAS({
           action: 'verifySpeech',
           spokenText: spokenText,
           correctSentence: quizData[currentIndex].sentence
         });
-        const res = await fetch(GAS_URL + '?' + params.toString(), {
-          method: 'GET',
-          redirect: 'follow'
-        });
-        const aiResult = await res.json();
 
         document.getElementById('ai-score').innerText = aiResult.score;
         document.getElementById('ai-feedback').innerText = aiResult.feedback;
@@ -270,14 +290,10 @@
     } else {
       document.getElementById('total-score').innerText = totalCorrectCount;
       try {
-        const params = new URLSearchParams({
+        await callGAS({
           action: 'saveScore',
           name: studentName,
           totalCorrect: totalCorrectCount
-        });
-        await fetch(GAS_URL + '?' + params.toString(), {
-          method: 'GET',
-          redirect: 'follow'
         });
       } catch (err) {
         console.error(err);
