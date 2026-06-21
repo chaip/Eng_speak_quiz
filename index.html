@@ -94,15 +94,15 @@
 <div class="container">
 
   <!-- หน้าแรก -->
-<div id="start-screen" class="screen active">
-  <h1>🏫 แบบฝึกพูดภาษาอังกฤษ ป.2</h1>
-  <p>ฟังคุณครูออกเสียง แล้วกดปุ่มไมโครโฟนเพื่อพูดตามนะจ๊ะ (สุ่มมา 5 ข้อ)</p>
-  <input type="text" id="student-name" placeholder="พิมพ์ชื่อตรงนี้เลยจ้า..." maxlength="20"><br>
-  <button id="start-btn" class="btn-listen" onclick="startApp()">เริ่มเล่นกันเลย! 🚀</button>
-  <div id="loading-status" style="margin-top: 15px; font-size: 18px; color: #4a6fa5; display: none;">
-    ⏳ กำลังโหลดข้อสอบ รอแป๊บนึงนะจ๊ะ...
+  <div id="start-screen" class="screen active">
+    <h1>🏫 แบบฝึกพูดภาษาอังกฤษ ป.2</h1>
+    <p>ฟังคุณครูออกเสียง แล้วกดปุ่มไมโครโฟนเพื่อพูดตามนะจ๊ะ (สุ่มมา 5 ข้อ)</p>
+    <input type="text" id="student-name" placeholder="พิมพ์ชื่อตรงนี้เลยจ้า..." maxlength="20"><br>
+    <button id="start-btn" class="btn-listen" onclick="startApp()">เริ่มเล่นกันเลย! 🚀</button>
+    <div id="loading-status" style="margin-top: 15px; font-size: 18px; color: #4a6fa5; display: none;">
+      ⏳ กำลังโหลดข้อสอบ รอแป๊บนึงนะจ๊ะ...
+    </div>
   </div>
-</div>
 
   <!-- หน้าทำข้อสอบ -->
   <div id="quiz-screen" class="screen">
@@ -122,36 +122,36 @@
   </div>
 
   <!-- หน้าสรุปคะแนน -->
-<div id="result-screen" class="screen">
-  <h1>🎉 เย้! ครบ 5 ข้อแล้ว 🎉</h1>
-  <h2>คะแนนรวมของคุณหนูๆ</h2>
-  <div style="font-size: 60px; font-weight: bold; color: #1dd1a1; margin: 20px 0;">
-    <span id="total-score">0</span> / 5
-  </div>
-  <p>บันทึกคะแนนเรียบร้อยแล้วจ้า!</p>
-
-  <!-- Leaderboard -->
-  <div style="margin-top: 20px; text-align: left;">
-    <h3 style="color: #4a6fa5; text-align: center;">🏆 10 อันดับสูงสุด</h3>
-    <div id="leaderboard-loading" style="text-align: center; color: #888;">
-      ⏳ กำลังโหลด...
+  <div id="result-screen" class="screen">
+    <h1>🎉 เย้! ครบ 5 ข้อแล้ว 🎉</h1>
+    <h2>คะแนนรวมของคุณหนูๆ</h2>
+    <div style="font-size: 60px; font-weight: bold; color: #1dd1a1; margin: 20px 0;">
+      <span id="total-score">0</span> / 5
     </div>
-    <table id="leaderboard-table" style="display:none; width: 100%; border-collapse: collapse; font-size: 15px;">
-      <thead>
-        <tr style="background-color: #4a6fa5; color: white;">
-          <th style="padding: 8px; text-align: center;">อันดับ</th>
-          <th style="padding: 8px; text-align: left;">ชื่อ</th>
-          <th style="padding: 8px; text-align: center;">คะแนน</th>
-          <th style="padding: 8px; text-align: center;">วันเวลา</th>
-        </tr>
-      </thead>
-      <tbody id="leaderboard-body"></tbody>
-    </table>
-  </div>
+    <p>บันทึกคะแนนเรียบร้อยแล้วจ้า!</p>
 
-  <br>
-  <button class="btn-listen" onclick="resetApp()">🔀 สุ่มข้อสอบชุดใหม่</button>
-</div>
+    <!-- Leaderboard -->
+    <div style="margin-top: 20px; text-align: left;">
+      <h3 style="color: #4a6fa5; text-align: center;">🏆 10 อันดับสูงสุด</h3>
+      <div id="leaderboard-loading" style="text-align: center; color: #888;">
+        ⏳ กำลังโหลด...
+      </div>
+      <table id="leaderboard-table" style="display:none; width: 100%; border-collapse: collapse; font-size: 15px;">
+        <thead>
+          <tr style="background-color: #4a6fa5; color: white;">
+            <th style="padding: 8px; text-align: center;">อันดับ</th>
+            <th style="padding: 8px; text-align: left;">ชื่อ</th>
+            <th style="padding: 8px; text-align: center;">คะแนน</th>
+            <th style="padding: 8px; text-align: center;">วันเวลา</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-body"></tbody>
+      </table>
+    </div>
+
+    <br>
+    <button class="btn-listen" onclick="resetApp()">🔀 สุ่มข้อสอบชุดใหม่</button>
+  </div>
 
 </div>
 
@@ -166,78 +166,75 @@
   let studentName = "";
 
   // เรียก GAS แบบ JSONP — ไม่ติด CORS
-function callGAS(params, timeoutMs = 15000) {
-  return new Promise((resolve, reject) => {
-    const callbackName = 'cb_' + Date.now();
-    params.callback = callbackName;
+  function callGAS(params, timeoutMs = 15000) {
+    return new Promise((resolve, reject) => {
+      const callbackName = 'cb_' + Date.now();
+      params.callback = callbackName;
 
-    const script = document.createElement('script');
-    script.src = GAS_URL + '?' + new URLSearchParams(params).toString();
+      const script = document.createElement('script');
+      script.src = GAS_URL + '?' + new URLSearchParams(params).toString();
 
-    // timeout ถ้าไม่ตอบใน 15 วินาที
-    const timer = setTimeout(() => {
-      delete window[callbackName];
-      if (document.body.contains(script)) document.body.removeChild(script);
-      reject(new Error('หมดเวลา กรุณาลองใหม่'));
-    }, timeoutMs);
+      const timer = setTimeout(() => {
+        delete window[callbackName];
+        if (document.body.contains(script)) document.body.removeChild(script);
+        reject(new Error('หมดเวลา กรุณาลองใหม่'));
+      }, timeoutMs);
 
-    window[callbackName] = function(data) {
-      clearTimeout(timer);
-      delete window[callbackName];
-      if (document.body.contains(script)) document.body.removeChild(script);
-      resolve(data);
-    };
+      window[callbackName] = function(data) {
+        clearTimeout(timer);
+        delete window[callbackName];
+        if (document.body.contains(script)) document.body.removeChild(script);
+        resolve(data);
+      };
 
-    script.onerror = () => {
-      clearTimeout(timer);
-      delete window[callbackName];
-      if (document.body.contains(script)) document.body.removeChild(script);
-      reject(new Error('เชื่อมต่อไม่ได้'));
-    };
+      script.onerror = () => {
+        clearTimeout(timer);
+        delete window[callbackName];
+        if (document.body.contains(script)) document.body.removeChild(script);
+        reject(new Error('เชื่อมต่อไม่ได้'));
+      };
 
-    document.body.appendChild(script);
-  });
-}
-
-async function startApp() {
-  studentName = document.getElementById('student-name').value.trim();
-  if (!studentName) {
-    alert('กรุณาใส่ชื่อก่อนนะครับ 😊');
-    return;
+      document.body.appendChild(script);
+    });
   }
 
-  // แสดง loading
-  document.getElementById('start-btn').disabled = true;
-  document.getElementById('start-btn').innerText = '⏳ กำลังโหลด...';
-  document.getElementById('loading-status').style.display = 'block';
+  async function startApp() {
+    studentName = document.getElementById('student-name').value.trim();
+    if (!studentName) {
+      alert('กรุณาใส่ชื่อก่อนนะครับ 😊');
+      return;
+    }
 
-  try {
-    const data = await callGAS({ action: 'getQuiz' });
-    if (data.error) {
-      alert(data.error);
-      // คืนค่าปุ่มถ้า error
+    document.getElementById('start-btn').disabled = true;
+    document.getElementById('start-btn').innerText = '⏳ กำลังโหลด...';
+    document.getElementById('loading-status').style.display = 'block';
+
+    try {
+      const data = await callGAS({ action: 'getQuiz' });
+      if (data.error) {
+        alert(data.error);
+        document.getElementById('start-btn').disabled = false;
+        document.getElementById('start-btn').innerText = 'เริ่มเล่นกันเลย! 🚀';
+        document.getElementById('loading-status').style.display = 'none';
+        return;
+      }
+      quizData = data;
+      currentIndex = 0;
+      totalCorrectCount = 0;
+      showQuestion();
+      switchScreen('quiz-screen');
+    } catch (err) {
+      alert('เชื่อมต่อ server ไม่ได้: ' + err);
       document.getElementById('start-btn').disabled = false;
       document.getElementById('start-btn').innerText = 'เริ่มเล่นกันเลย! 🚀';
       document.getElementById('loading-status').style.display = 'none';
-      return;
     }
-    quizData = data;
-    currentIndex = 0;
-    totalCorrectCount = 0;
-    showQuestion();
-    switchScreen('quiz-screen');
-  } catch (err) {
-    alert('เชื่อมต่อ server ไม่ได้: ' + err);
-    // คืนค่าปุ่มถ้า error
-    document.getElementById('start-btn').disabled = false;
-    document.getElementById('start-btn').innerText = 'เริ่มเล่นกันเลย! 🚀';
-    document.getElementById('loading-status').style.display = 'none';
   }
-}
 
   function showQuestion() {
     document.getElementById('ai-result').style.display = 'none';
     document.getElementById('next-btn').style.display = 'none';
+    document.getElementById('retry-btn').style.display = 'none'; // ซ่อนปุ่ม retry ด้วย
     document.getElementById('mic-btn').disabled = false;
     document.getElementById('mic-btn').innerText = "🎙️ กดแล้วพูดเลย";
     document.getElementById('mic-status').innerText = "";
@@ -245,6 +242,14 @@ async function startApp() {
     document.getElementById('current-index').innerText = currentIndex + 1;
     document.getElementById('target-sentence').innerText = q.sentence;
     setTimeout(() => playSampleAudio(), 500);
+  }
+
+  function retryVerify() {
+    document.getElementById('ai-result').style.display = 'none';
+    document.getElementById('retry-btn').style.display = 'none';
+    document.getElementById('mic-status').innerText = "🔄 ลองพูดใหม่อีกครั้งนะจ๊ะ";
+    document.getElementById('mic-btn').disabled = false;
+    document.getElementById('mic-btn').innerText = "🎙️ กดแล้วพูดเลย";
   }
 
   function playSampleAudio() {
@@ -281,50 +286,44 @@ async function startApp() {
       micStatus.innerText = "🔴 พูดได้เลยจ้า 🎙️";
     };
 
-recognition.onresult = async (event) => {
-  const spokenText = event.results[0][0].transcript;
-  document.getElementById('spoken-text').innerText = spokenText;
-  micStatus.innerText = "⏳ ส่งให้ AI ตรวจ...";
-  micBtn.innerText = "⏳ รอแป๊บนึง...";
-  micBtn.disabled = true;
+    recognition.onresult = async (event) => {
+      const spokenText = event.results[0][0].transcript;
+      document.getElementById('spoken-text').innerText = spokenText;
+      micStatus.innerText = "⏳ ส่งให้ AI ตรวจ...";
+      micBtn.innerText = "⏳ รอแป๊บนึง...";
+      micBtn.disabled = true;
 
-  try {
-    const aiResult = await callGAS({
-      action: 'verifySpeech',
-      spokenText: spokenText,
-      correctSentence: quizData[currentIndex].sentence
-    });
+      try {
+        const aiResult = await callGAS({
+          action: 'verifySpeech',
+          spokenText: spokenText,
+          correctSentence: quizData[currentIndex].sentence
+        });
 
-    document.getElementById('ai-score').innerText = aiResult.score;
-    document.getElementById('ai-feedback').innerText = aiResult.feedback;
-    document.getElementById('ai-encourage').innerText = aiResult.encouragement;
-    document.getElementById('ai-result').style.display = 'block';
-    document.getElementById('next-btn').style.display = 'inline-block';
+        document.getElementById('ai-score').innerText = aiResult.score;
+        document.getElementById('ai-feedback').innerText = aiResult.feedback;
+        document.getElementById('ai-encourage').innerText = aiResult.encouragement;
+        document.getElementById('ai-result').style.display = 'block';
+        document.getElementById('next-btn').style.display = 'inline-block';
+        document.getElementById('retry-btn').style.display = 'none';
 
-    if (aiResult.isCorrect) totalCorrectCount++;
+        if (aiResult.isCorrect) totalCorrectCount++;
 
-    micBtn.innerText = "🎙️ กดแล้วพูดเลย";
-    micBtn.disabled = false;
-    isRecording = false;
-    micStatus.innerText = "";
+      } catch (err) {
+        document.getElementById('ai-score').innerText = '?';
+        document.getElementById('ai-feedback').innerText = '❌ ' + err.message;
+        document.getElementById('ai-encourage').innerText = 'กรุณากดปุ่มลองใหม่ด้านล่างนะจ๊ะ 👇';
+        document.getElementById('ai-result').style.display = 'block';
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('retry-btn').style.display = 'inline-block';
+      }
 
-  } catch (err) {
-    // แสดง error และปุ่มลองใหม่
-    document.getElementById('ai-score').innerText = '?';
-    document.getElementById('ai-feedback').innerText = '❌ เชื่อมต่อไม่ได้: ' + err.message;
-    document.getElementById('ai-encourage').innerText = 'กรุณากดปุ่มลองใหม่ด้านล่างนะจ๊ะ 👇';
-    document.getElementById('ai-result').style.display = 'block';
+      micBtn.innerText = "🎙️ กดแล้วพูดเลย";
+      micBtn.disabled = false;
+      isRecording = false;
+      micStatus.innerText = "";
+    };
 
-    // แสดงปุ่มลองใหม่แทนปุ่มข้อต่อไป
-    document.getElementById('next-btn').style.display = 'none';
-    document.getElementById('retry-btn').style.display = 'inline-block';
-
-    micBtn.innerText = "🎙️ กดแล้วพูดเลย";
-    micBtn.disabled = false;
-    isRecording = false;
-    micStatus.innerText = "";
-  }
-};
     recognition.onerror = (event) => {
       isRecording = false;
       micBtn.classList.remove('recording');
@@ -346,28 +345,68 @@ recognition.onresult = async (event) => {
     recognition.start();
   }
 
-async function nextQuestion() {
-  currentIndex++;
-  if (currentIndex < quizData.length) {
-    showQuestion();
-  } else {
-    document.getElementById('total-score').innerText = totalCorrectCount;
-    try {
-      await callGAS({
-        action: 'saveScore',
-        name: studentName,
-        totalCorrect: totalCorrectCount
-      });
-    } catch (err) {
-      console.error(err);
+  async function nextQuestion() {
+    currentIndex++;
+    if (currentIndex < quizData.length) {
+      showQuestion();
+    } else {
+      document.getElementById('total-score').innerText = totalCorrectCount;
+      try {
+        await callGAS({
+          action: 'saveScore',
+          name: studentName,
+          totalCorrect: totalCorrectCount
+        });
+      } catch (err) {
+        console.error(err);
+      }
+      switchScreen('result-screen');
+      loadLeaderboard();
     }
-    switchScreen('result-screen');
-    loadLeaderboard(); // โหลด leaderboard หลังบันทึกคะแนน
   }
-}
+
+  async function loadLeaderboard() {
+    document.getElementById('leaderboard-loading').style.display = 'block';
+    document.getElementById('leaderboard-table').style.display = 'none';
+
+    try {
+      const data = await callGAS({ action: 'getLeaderboard' });
+      const tbody = document.getElementById('leaderboard-body');
+      tbody.innerHTML = '';
+
+      const medals = ['🥇', '🥈', '🥉'];
+
+      data.forEach(function(row, i) {
+        const tr = document.createElement('tr');
+        tr.style.backgroundColor = i % 2 === 0 ? '#f5f7fa' : 'white';
+
+        if (row.name === studentName) {
+          tr.style.backgroundColor = '#fff9c4';
+          tr.style.fontWeight = 'bold';
+        }
+
+        tr.innerHTML = `
+          <td style="padding: 8px; text-align: center;">${medals[i] || (i + 1)}</td>
+          <td style="padding: 8px;">${row.name}</td>
+          <td style="padding: 8px; text-align: center; color: #1dd1a1; font-weight: bold;">${row.score}</td>
+          <td style="padding: 8px; text-align: center; font-size: 13px; color: #888;">${row.date}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('leaderboard-loading').style.display = 'none';
+      document.getElementById('leaderboard-table').style.display = 'table';
+
+    } catch (err) {
+      document.getElementById('leaderboard-loading').innerText = '❌ โหลด leaderboard ไม่ได้';
+    }
+  }
 
   function resetApp() {
     document.getElementById('student-name').value = "";
+    document.getElementById('start-btn').disabled = false;
+    document.getElementById('start-btn').innerText = 'เริ่มเล่นกันเลย! 🚀';
+    document.getElementById('loading-status').style.display = 'none';
     switchScreen('start-screen');
   }
 
@@ -375,44 +414,6 @@ async function nextQuestion() {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
   }
-
-async function loadLeaderboard() {
-  document.getElementById('leaderboard-loading').style.display = 'block';
-  document.getElementById('leaderboard-table').style.display = 'none';
-
-  try {
-    const data = await callGAS({ action: 'getLeaderboard' });
-    const tbody = document.getElementById('leaderboard-body');
-    tbody.innerHTML = '';
-
-    const medals = ['🥇', '🥈', '🥉'];
-
-    data.forEach(function(row, i) {
-      const tr = document.createElement('tr');
-      tr.style.backgroundColor = i % 2 === 0 ? '#f5f7fa' : 'white';
-
-      // ไฮไลท์แถวของผู้เล่นปัจจุบัน
-      if (row.name === studentName) {
-        tr.style.backgroundColor = '#fff9c4';
-        tr.style.fontWeight = 'bold';
-      }
-
-      tr.innerHTML = `
-        <td style="padding: 8px; text-align: center;">${medals[i] || (i + 1)}</td>
-        <td style="padding: 8px;">${row.name}</td>
-        <td style="padding: 8px; text-align: center; color: #1dd1a1; font-weight: bold;">${row.score}</td>
-        <td style="padding: 8px; text-align: center; font-size: 13px; color: #888;">${row.date}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    document.getElementById('leaderboard-loading').style.display = 'none';
-    document.getElementById('leaderboard-table').style.display = 'table';
-
-  } catch (err) {
-    document.getElementById('leaderboard-loading').innerText = '❌ โหลด leaderboard ไม่ได้';
-  }
-}
 </script>
 </body>
 </html>
