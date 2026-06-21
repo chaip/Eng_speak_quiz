@@ -121,21 +121,42 @@
   </div>
 
   <!-- หน้าสรุปคะแนน -->
-  <div id="result-screen" class="screen">
-    <h1>🎉 เย้! ครบ 5 ข้อแล้ว 🎉</h1>
-    <h2>คะแนนรวมของคุณหนูๆ</h2>
-    <div style="font-size: 60px; font-weight: bold; color: #1dd1a1; margin: 20px 0;">
-      <span id="total-score">0</span> / 5
-    </div>
-    <p>บันทึกคะแนนเรียบร้อยแล้วจ้า!</p>
-    <button class="btn-listen" onclick="resetApp()">🔀 สุ่มข้อสอบชุดใหม่</button>
+<div id="result-screen" class="screen">
+  <h1>🎉 เย้! ครบ 5 ข้อแล้ว 🎉</h1>
+  <h2>คะแนนรวมของคุณหนูๆ</h2>
+  <div style="font-size: 60px; font-weight: bold; color: #1dd1a1; margin: 20px 0;">
+    <span id="total-score">0</span> / 5
   </div>
+  <p>บันทึกคะแนนเรียบร้อยแล้วจ้า!</p>
+
+  <!-- Leaderboard -->
+  <div style="margin-top: 20px; text-align: left;">
+    <h3 style="color: #4a6fa5; text-align: center;">🏆 10 อันดับสูงสุด</h3>
+    <div id="leaderboard-loading" style="text-align: center; color: #888;">
+      ⏳ กำลังโหลด...
+    </div>
+    <table id="leaderboard-table" style="display:none; width: 100%; border-collapse: collapse; font-size: 15px;">
+      <thead>
+        <tr style="background-color: #4a6fa5; color: white;">
+          <th style="padding: 8px; text-align: center;">อันดับ</th>
+          <th style="padding: 8px; text-align: left;">ชื่อ</th>
+          <th style="padding: 8px; text-align: center;">คะแนน</th>
+          <th style="padding: 8px; text-align: center;">วันเวลา</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboard-body"></tbody>
+    </table>
+  </div>
+
+  <br>
+  <button class="btn-listen" onclick="resetApp()">🔀 สุ่มข้อสอบชุดใหม่</button>
+</div>
 
 </div>
 
 <script>
   // ⬇️ เปลี่ยนเป็น URL ของ GAS ที่ deploy ไว้
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbx1kILjN-OzM50l906kdiVjdn5ZB1-AODEAuPJYr9-jZ8F9mRZH-B1vio9YcT20ndG6/exec';
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbya-YpiLoYdmYMmLTQ2uwhU0aA3iEZ4DPuR_BaGSd1sCDXk0JWtEWh--vg2je4gUE-O/exec';
 
   let quizData = [];
   let currentIndex = 0;
@@ -303,24 +324,25 @@ async function startApp() {
     recognition.start();
   }
 
-  async function nextQuestion() {
-    currentIndex++;
-    if (currentIndex < quizData.length) {
-      showQuestion();
-    } else {
-      document.getElementById('total-score').innerText = totalCorrectCount;
-      try {
-        await callGAS({
-          action: 'saveScore',
-          name: studentName,
-          totalCorrect: totalCorrectCount
-        });
-      } catch (err) {
-        console.error(err);
-      }
-      switchScreen('result-screen');
+async function nextQuestion() {
+  currentIndex++;
+  if (currentIndex < quizData.length) {
+    showQuestion();
+  } else {
+    document.getElementById('total-score').innerText = totalCorrectCount;
+    try {
+      await callGAS({
+        action: 'saveScore',
+        name: studentName,
+        totalCorrect: totalCorrectCount
+      });
+    } catch (err) {
+      console.error(err);
     }
+    switchScreen('result-screen');
+    loadLeaderboard(); // โหลด leaderboard หลังบันทึกคะแนน
   }
+}
 
   function resetApp() {
     document.getElementById('student-name').value = "";
@@ -331,6 +353,44 @@ async function startApp() {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
   }
+
+async function loadLeaderboard() {
+  document.getElementById('leaderboard-loading').style.display = 'block';
+  document.getElementById('leaderboard-table').style.display = 'none';
+
+  try {
+    const data = await callGAS({ action: 'getLeaderboard' });
+    const tbody = document.getElementById('leaderboard-body');
+    tbody.innerHTML = '';
+
+    const medals = ['🥇', '🥈', '🥉'];
+
+    data.forEach(function(row, i) {
+      const tr = document.createElement('tr');
+      tr.style.backgroundColor = i % 2 === 0 ? '#f5f7fa' : 'white';
+
+      // ไฮไลท์แถวของผู้เล่นปัจจุบัน
+      if (row.name === studentName) {
+        tr.style.backgroundColor = '#fff9c4';
+        tr.style.fontWeight = 'bold';
+      }
+
+      tr.innerHTML = `
+        <td style="padding: 8px; text-align: center;">${medals[i] || (i + 1)}</td>
+        <td style="padding: 8px;">${row.name}</td>
+        <td style="padding: 8px; text-align: center; color: #1dd1a1; font-weight: bold;">${row.score}</td>
+        <td style="padding: 8px; text-align: center; font-size: 13px; color: #888;">${row.date}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('leaderboard-loading').style.display = 'none';
+    document.getElementById('leaderboard-table').style.display = 'table';
+
+  } catch (err) {
+    document.getElementById('leaderboard-loading').innerText = '❌ โหลด leaderboard ไม่ได้';
+  }
+}
 </script>
 </body>
 </html>
