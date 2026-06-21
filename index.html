@@ -117,6 +117,7 @@
       <p><strong>💬 คำแนะนำ:</strong> <span id="ai-feedback">...</span></p>
       <p><strong>💖 คุณครู Gemini:</strong> <span id="ai-encourage">...</span></p>
       <button id="next-btn" class="btn-next" style="display:none;" onclick="nextQuestion()">ไปข้อต่อไป ➡️</button>
+      <button id="retry-btn" class="btn-mic" style="display:none;" onclick="retryVerify()">🔄 ลองใหม่อีกครั้ง</button>
     </div>
   </div>
 
@@ -165,29 +166,38 @@
   let studentName = "";
 
   // เรียก GAS แบบ JSONP — ไม่ติด CORS
-  function callGAS(params) {
-    return new Promise((resolve, reject) => {
-      const callbackName = 'cb_' + Date.now();
-      params.callback = callbackName;
+function callGAS(params, timeoutMs = 15000) {
+  return new Promise((resolve, reject) => {
+    const callbackName = 'cb_' + Date.now();
+    params.callback = callbackName;
 
-      const script = document.createElement('script');
-      script.src = GAS_URL + '?' + new URLSearchParams(params).toString();
+    const script = document.createElement('script');
+    script.src = GAS_URL + '?' + new URLSearchParams(params).toString();
 
-      window[callbackName] = function(data) {
-        delete window[callbackName];
-        document.body.removeChild(script);
-        resolve(data);
-      };
+    // timeout ถ้าไม่ตอบใน 15 วินาที
+    const timer = setTimeout(() => {
+      delete window[callbackName];
+      if (document.body.contains(script)) document.body.removeChild(script);
+      reject(new Error('หมดเวลา กรุณาลองใหม่'));
+    }, timeoutMs);
 
-      script.onerror = () => {
-        delete window[callbackName];
-        document.body.removeChild(script);
-        reject(new Error('เชื่อมต่อไม่ได้'));
-      };
+    window[callbackName] = function(data) {
+      clearTimeout(timer);
+      delete window[callbackName];
+      if (document.body.contains(script)) document.body.removeChild(script);
+      resolve(data);
+    };
 
-      document.body.appendChild(script);
-    });
-  }
+    script.onerror = () => {
+      clearTimeout(timer);
+      delete window[callbackName];
+      if (document.body.contains(script)) document.body.removeChild(script);
+      reject(new Error('เชื่อมต่อไม่ได้'));
+    };
+
+    document.body.appendChild(script);
+  });
+}
 
 async function startApp() {
   studentName = document.getElementById('student-name').value.trim();
@@ -271,38 +281,50 @@ async function startApp() {
       micStatus.innerText = "🔴 พูดได้เลยจ้า 🎙️";
     };
 
-    recognition.onresult = async (event) => {
-      const spokenText = event.results[0][0].transcript;
-      document.getElementById('spoken-text').innerText = spokenText;
-      micStatus.innerText = "⏳ ส่งให้ AI ตรวจ...";
-      micBtn.innerText = "⏳ รอแป๊บนึง...";
-      micBtn.disabled = true;
+recognition.onresult = async (event) => {
+  const spokenText = event.results[0][0].transcript;
+  document.getElementById('spoken-text').innerText = spokenText;
+  micStatus.innerText = "⏳ ส่งให้ AI ตรวจ...";
+  micBtn.innerText = "⏳ รอแป๊บนึง...";
+  micBtn.disabled = true;
 
-      try {
-        const aiResult = await callGAS({
-          action: 'verifySpeech',
-          spokenText: spokenText,
-          correctSentence: quizData[currentIndex].sentence
-        });
+  try {
+    const aiResult = await callGAS({
+      action: 'verifySpeech',
+      spokenText: spokenText,
+      correctSentence: quizData[currentIndex].sentence
+    });
 
-        document.getElementById('ai-score').innerText = aiResult.score;
-        document.getElementById('ai-feedback').innerText = aiResult.feedback;
-        document.getElementById('ai-encourage').innerText = aiResult.encouragement;
-        document.getElementById('ai-result').style.display = 'block';
-        document.getElementById('next-btn').style.display = 'inline-block';
+    document.getElementById('ai-score').innerText = aiResult.score;
+    document.getElementById('ai-feedback').innerText = aiResult.feedback;
+    document.getElementById('ai-encourage').innerText = aiResult.encouragement;
+    document.getElementById('ai-result').style.display = 'block';
+    document.getElementById('next-btn').style.display = 'inline-block';
 
-        if (aiResult.isCorrect) totalCorrectCount++;
+    if (aiResult.isCorrect) totalCorrectCount++;
 
-      } catch (err) {
-        micStatus.innerText = "❌ เชื่อมต่อไม่ได้: " + err;
-      }
+    micBtn.innerText = "🎙️ กดแล้วพูดเลย";
+    micBtn.disabled = false;
+    isRecording = false;
+    micStatus.innerText = "";
 
-      micBtn.innerText = "🎙️ กดแล้วพูดเลย";
-      micBtn.disabled = false;
-      isRecording = false;
-      micStatus.innerText = "";
-    };
+  } catch (err) {
+    // แสดง error และปุ่มลองใหม่
+    document.getElementById('ai-score').innerText = '?';
+    document.getElementById('ai-feedback').innerText = '❌ เชื่อมต่อไม่ได้: ' + err.message;
+    document.getElementById('ai-encourage').innerText = 'กรุณากดปุ่มลองใหม่ด้านล่างนะจ๊ะ 👇';
+    document.getElementById('ai-result').style.display = 'block';
 
+    // แสดงปุ่มลองใหม่แทนปุ่มข้อต่อไป
+    document.getElementById('next-btn').style.display = 'none';
+    document.getElementById('retry-btn').style.display = 'inline-block';
+
+    micBtn.innerText = "🎙️ กดแล้วพูดเลย";
+    micBtn.disabled = false;
+    isRecording = false;
+    micStatus.innerText = "";
+  }
+};
     recognition.onerror = (event) => {
       isRecording = false;
       micBtn.classList.remove('recording');
