@@ -328,10 +328,13 @@
       isRecording = false;
       micBtn.classList.remove('recording');
       micBtn.innerText = "🎙️ กดแล้วพูดเลย";
+      
       if (event.error === 'no-speech') {
         micStatus.innerText = "❌ ไม่ได้ยินเสียง ลองใหม่นะจ๊ะ";
       } else if (event.error === 'not-allowed') {
         micStatus.innerText = "❌ ไม่ได้รับอนุญาตไมโครโฟน กรุณากด Allow ครับ";
+      } else if (event.error === 'service-not-allowed') {
+        micStatus.innerText = "❌ iPhone/iPad: กรุณาเปิดด้วย Safari และกด Allow ไมโครโฟนครับ";
       } else {
         micStatus.innerText = "❌ error: " + event.error;
       }
